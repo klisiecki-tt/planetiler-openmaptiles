@@ -46,6 +46,8 @@ import com.onthegomap.planetiler.stats.Stats;
 import com.onthegomap.planetiler.util.Translations;
 import com.onthegomap.planetiler.util.ZoomFunction;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,11 +120,33 @@ public class Landcover implements
     }
   }
 
+  record UsedLandcover(
+    String clazz,
+    String subclass
+  ) {
+    public boolean matches(String clazz, String subclass) {
+      return this.clazz.equals(clazz) &&
+          (this.subclass == null || this.subclass.equals(subclass));
+    }
+  }
+
+  private Set<UsedLandcover> usedLandcovers = new HashSet<>(Arrays.asList(
+      new UsedLandcover("grass", "park"),
+      new UsedLandcover("grass", "recreation_ground"),
+      new UsedLandcover("grass", "meadow"),
+      new UsedLandcover("public_park", null),
+      new UsedLandcover("protected_area", null),
+      new UsedLandcover("wood", null)
+  ));
+
+
+
   @Override
   public void process(Tables.OsmLandcoverPolygon element, FeatureCollector features) {
     String subclass = element.subclass();
     String clazz = getClassFromSubclass(subclass);
-    if (clazz != null) {
+    if (clazz != null && usedLandcovers.stream().anyMatch(lc -> lc.matches(clazz, subclass))) {
+//      System.out.println(clazz + ":" + subclass);
       features.polygon(LAYER_NAME).setBufferPixels(BUFFER_SIZE)
         .setMinPixelSizeOverrides(MIN_PIXEL_SIZE_THRESHOLDS)
         // default is 0.1, this helps reduce size of some heavy z7-10 tiles
