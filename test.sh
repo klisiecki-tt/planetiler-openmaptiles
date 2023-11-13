@@ -1,5 +1,5 @@
-#layers=(aerodrome_label aeroway building landcover landuse mountain_peak park place poi water water_name waterway)
-layers=(landcover)
+layers=(aerodrome_label aeroway building landcover landuse mountain_peak park place poi water water_name waterway border)
+#layers=(landcover)
 
 area=czech-republic
 

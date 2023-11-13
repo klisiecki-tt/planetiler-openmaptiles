@@ -51,6 +51,7 @@ import com.onthegomap.planetiler.expression.MultiExpression;
 import com.onthegomap.planetiler.stats.Stats;
 import com.onthegomap.planetiler.util.Parse;
 import com.onthegomap.planetiler.util.Translations;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.openmaptiles.generated.OpenMapTilesSchema;
@@ -128,11 +129,25 @@ public class Poi implements
   @Override
   public void process(Tables.OsmPoiPoint element, FeatureCollector features) {
     // TODO handle uic_ref => agg_stop
+    String rawSubclass = element.subclass();
+    String poiClass = poiClass(rawSubclass, element.mappingKey());
+    if (!usedPoiClasses.contains(poiClass)) {
+//      System.out.println("skip " + poiClass);
+      return;
+    }
     setupPoiFeature(element, features.point(LAYER_NAME));
   }
 
+  private List<String> usedPoiClasses = Arrays.asList("park", "hospital", "cemetery", "college", "railway", "town_hall", "school", "stadium", "castle");
+
   @Override
   public void process(Tables.OsmPoiPolygon element, FeatureCollector features) {
+    String rawSubclass = element.subclass();
+    String poiClass = poiClass(rawSubclass, element.mappingKey());
+    if (!usedPoiClasses.contains(poiClass)) {
+      System.out.println("skip " + poiClass);
+      return;
+    }
     setupPoiFeature(element, features.centroidIfConvex(LAYER_NAME));
   }
 
